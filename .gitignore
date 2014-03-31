@@ -1,0 +1,4 @@
+.boot/
+.repl-history
+out/
+resources/public

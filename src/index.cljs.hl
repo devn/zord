@@ -1,0 +1,66 @@
+(page "index.html"
+      (:require [hum.core :as hum]
+                [goog.events :as events]
+                [zord.pitch :as p]
+                [cljs-time.core :as time]
+                [tailrecursion.hoplon.storage-atom :refer [local-storage]]
+                ;; Development
+                [tailrecursion.hoplon.reload :refer [reload-all]])
+      (:require-macros [cljs-time.macros :refer (do-at)])
+      (:import [goog.events KeyHandler]
+               [goog.events.KeyHandler EventType]))
+
+;; Development
+(reload-all)
+
+(def ctx (hum/create-context))
+(def vco (hum/create-osc ctx :square))
+(def vcf (hum/create-biquad-filter ctx))
+(def +out+ (hum/create-gain ctx))
+
+;; Hum hookup
+(do (hum/connect vco vcf)
+    (hum/connect vcf +out+)
+    (hum/start-osc vco)
+    (hum/connect-output +out+))
+
+;; (defc note "nil")
+;; (defn listen-for-keyboard []
+;;   (events/listen (KeyHandler. js/document)
+;;                  EventType.KEY
+;;                  #(reset! note (-> % .-keyCode char str))))
+
+(defc beat-cells (vec (repeat 4 0)))
+
+
+(html
+  (head
+   (link :rel "stylesheet" :type "text/css" :href "css/main.css"))
+  (body
+   (h1 "zord")
+   (h1 (text (p/scale :C4 :major)))
+   (h1 (text "~{beat-cells}"))
+   (table :border 1
+          :bordercolor "#DDD"
+          :width "100%"
+          :style "background-color: #FFF;"
+          :cellpadding 3
+          :cellspacing 3
+          (map #(td (input :name %1
+                           :type "checkbox"
+                           :on-click (fn []
+                                       (let [cur-val (get-in @beat-cells [%1])]
+                                         (if (= cur-val 0)
+                                           (swap! beat-cells assoc-in [%1] 1)
+                                           (swap! beat-cells assoc-in [%1] 0)))) 
+                           :value %2))
+               [0 1 2 3]
+               @beat-cells)
+          (button :class "play"
+                  :on-mousedown #(hum/note-on +out+ vco
+                                              (rand-nth (map p/midi->hz (p/scale :C4 :major)))
+                                              :ramp-time 0.3)
+                  :on-mouseup #(hum/note-off +out+ :ramp-time 0.3)
+                  "play")
+          ;; (listen-for-keyboard)
+          )))
