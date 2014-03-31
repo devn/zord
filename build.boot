@@ -4,16 +4,15 @@
 
 (set-env!
   :project      'zord
+  :description "Whoa, nice zord!"
   :version      "0.1.0-SNAPSHOT"
   :dependencies '[[tailrecursion/boot.task   "2.1.1"]
                   [tailrecursion/hoplon      "5.5.1"]
                   [tailrecursion/boot.notify "2.0.0-SNAPSHOT"]
                   [tailrecursion/boot.ring   "0.1.0-SNAPSHOT"]
                   [org.clojure/clojurescript "0.0-2156"]
-                  [repl "0.1.0-SNAPSHOT"]
                   [hum "0.3.0"]
                   [com.andrewmcveigh/cljs-time "0.1.1"]]
-  :profiles     {:dev {:repl-options {:init-ns 'tailrecursion.hoplon.app_pages._index_DOT_html}}}
   :out-path     "resources/public"
   :src-paths    #{"src"})
 
